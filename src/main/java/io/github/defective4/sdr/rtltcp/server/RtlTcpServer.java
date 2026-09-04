@@ -12,8 +12,8 @@ import io.github.defective4.sdr.rtltcp.server.command.CommandAdapter;
 import io.github.defective4.sdr.rtltcp.server.command.CommandListener;
 import io.github.defective4.sdr.rtltcp.server.command.DirectSampling;
 import io.github.defective4.sdr.rtltcp.server.command.GainMode;
-import io.github.defective4.sdr.rtltcp.server.command.TunerType;
 import io.github.defective4.sdr.rtltcp.server.device.DongleInfo;
+import io.github.defective4.sdr.rtltcp.server.device.TunerType;
 import io.github.defective4.sdr.rtltcp.server.signal.RateLimiter;
 import io.github.defective4.sdr.rtltcp.server.signal.SampleProvider;
 

@@ -1,4 +1,4 @@
-package io.github.defective4.sdr.rtltcp.server.command;
+package io.github.defective4.sdr.rtltcp.server.device;
 
 import java.util.Arrays;
 

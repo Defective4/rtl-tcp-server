@@ -3,8 +3,6 @@ package io.github.defective4.sdr.rtltcp.server.device;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import io.github.defective4.sdr.rtltcp.server.command.TunerType;
-
 public record DongleInfo(byte[] magic, TunerType tunerType) {
     public void write(DataOutput output) throws IOException {
         output.write(magic);
