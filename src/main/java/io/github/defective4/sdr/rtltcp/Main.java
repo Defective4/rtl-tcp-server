@@ -3,16 +3,16 @@ package io.github.defective4.sdr.rtltcp;
 import java.net.InetSocketAddress;
 import java.util.Random;
 
-import io.github.defective4.sdr.rtltcp.server.CommandListener;
-import io.github.defective4.sdr.rtltcp.server.DirectSampling;
-import io.github.defective4.sdr.rtltcp.server.GainMode;
 import io.github.defective4.sdr.rtltcp.server.RtlTcpServer;
+import io.github.defective4.sdr.rtltcp.server.command.CommandListener;
+import io.github.defective4.sdr.rtltcp.server.command.DirectSampling;
+import io.github.defective4.sdr.rtltcp.server.command.GainMode;
 
 public class Main {
     public static void main(String[] args) {
         Random rand = new Random();
         try (RtlTcpServer server = new RtlTcpServer()) {
-            server.setSampleRate(250e3f);
+            server.setSampleRate(1.44e6f);
             server.setSampleProvider(buffer -> {
                 rand.nextBytes(buffer);
                 return buffer.length;

@@ -1,4 +1,4 @@
-package io.github.defective4.sdr.rtltcp.server;
+package io.github.defective4.sdr.rtltcp.server.command;
 
 public class CommandAdapter implements CommandListener {
 
