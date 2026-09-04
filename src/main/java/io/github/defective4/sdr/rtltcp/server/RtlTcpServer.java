@@ -18,26 +18,64 @@ import io.github.defective4.sdr.rtltcp.server.signal.RateLimiter;
 import io.github.defective4.sdr.rtltcp.server.signal.SampleProvider;
 
 public class RtlTcpServer implements AutoCloseable {
-    private static final DongleInfo DONGLE_INFO = new DongleInfo("RTL0".getBytes(), TunerType.R828D);
+    public static class Builder {
+        private int blockSize = 1024;
+        private CommandListener listener = new CommandAdapter();
+        private SampleProvider sampleProvider = buffer -> 0;
+        private TunerType tunerType = TunerType.R828D;
+
+        public RtlTcpServer create() throws IOException {
+            return new RtlTcpServer(listener, sampleProvider, tunerType, blockSize);
+        }
+
+        public Builder withBlockSize(int blockSize) {
+            if (blockSize <= 0) throw new IllegalArgumentException("Block size can't be less than 0!");
+            this.blockSize = blockSize;
+            return this;
+        }
+
+        public Builder withListener(CommandListener listener) {
+            this.listener = Objects.requireNonNull(listener);
+            return this;
+        }
+
+        public Builder withSampleProvider(SampleProvider sampleProvider) {
+            this.sampleProvider = Objects.requireNonNull(sampleProvider);
+            return this;
+        }
+
+        public Builder withTunerType(TunerType tunerType) {
+            this.tunerType = Objects.requireNonNull(tunerType);
+            return this;
+        }
+    }
+    private final int blockSize;
+    private final DongleInfo dongleInfo;
     private final RateLimiter limiter = new RateLimiter(0);
-    private CommandListener listener = new CommandAdapter();
-    private SampleProvider sampleProvider = buffer -> 0;
+    private final CommandListener listener;
+
+    private final SampleProvider sampleProvider;
     private final ServerSocket server;
 
     private long timeout;
 
-    public RtlTcpServer() throws IOException {
+    private RtlTcpServer(CommandListener listener, SampleProvider sampleProvider, TunerType tunerType, int blockSize)
+            throws IOException {
+        this.listener = listener;
+        this.sampleProvider = sampleProvider;
         server = new ServerSocket();
+        dongleInfo = new DongleInfo("RTL0".getBytes(), tunerType);
+        this.blockSize = blockSize;
     }
 
     public void accept() throws IOException {
         try (Socket socket = server.accept();
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 DataInputStream in = new DataInputStream(socket.getInputStream())) {
-            DONGLE_INFO.write(out);
+            dongleInfo.write(out);
             while (!socket.isClosed()) {
                 if (timeout < System.currentTimeMillis()) {
-                    byte[] data = new byte[1024];
+                    byte[] data = new byte[blockSize];
                     int len = sampleProvider.provide(data);
                     if (len > data.length) len = data.length;
                     if (len < 0) len = 0;
@@ -103,14 +141,6 @@ public class RtlTcpServer implements AutoCloseable {
 
     public boolean isClosed() {
         return server.isClosed();
-    }
-
-    public void setCommandListener(CommandListener commandListener) {
-        listener = Objects.requireNonNull(commandListener);
-    }
-
-    public void setSampleProvider(SampleProvider sampleProvider) {
-        this.sampleProvider = Objects.requireNonNull(sampleProvider);
     }
 
     public void setSampleRate(float rate) {
