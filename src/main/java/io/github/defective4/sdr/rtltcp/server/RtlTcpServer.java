@@ -22,10 +22,13 @@ public class RtlTcpServer implements AutoCloseable {
         private int blockSize = 1024;
         private CommandListener listener = new CommandAdapter();
         private SampleProvider sampleProvider = buffer -> 0;
+        private float sampleRate;
         private TunerType tunerType = TunerType.R828D;
 
         public RtlTcpServer create() throws IOException {
-            return new RtlTcpServer(listener, sampleProvider, tunerType, blockSize);
+            RtlTcpServer server = new RtlTcpServer(listener, sampleProvider, tunerType, blockSize);
+            server.setSampleRate(sampleRate);
+            return server;
         }
 
         public Builder withBlockSize(int blockSize) {
@@ -44,11 +47,17 @@ public class RtlTcpServer implements AutoCloseable {
             return this;
         }
 
+        public Builder withSampleRate(float sampleRate) {
+            this.sampleRate = sampleRate;
+            return this;
+        }
+
         public Builder withTunerType(TunerType tunerType) {
             this.tunerType = Objects.requireNonNull(tunerType);
             return this;
         }
     }
+
     private final int blockSize;
     private final DongleInfo dongleInfo;
     private final RateLimiter limiter = new RateLimiter(0);
